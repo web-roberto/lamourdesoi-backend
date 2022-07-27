@@ -4,27 +4,32 @@ const router = express.Router();
 const mongoose = require('mongoose');
 
 router.get(`/`, async (req, res) => {
+    console.log('R:----DENTRO DE-- categories.js router.get(/');
     const categoryList = await Category.find();
-
+    console.log('R:----DENTRO DE-- categories.js router.get(/)--------despues de await Category.find');
+    console.log('R:----- categoryList', categoryList);
     if (!categoryList) {
         res.status(500).json({ success: false });
     }
-    res.status(200).send(categoryList);
+    console.log('R:----- categoryList con JSON.stringify', JSON.stringify(categoryList));
+    res.status(200).send(JSON.stringify(categoryList));
 });
 
 router.get('/:id', async (req, res) => {
-    const id = mongoose.Types.ObjectId(req.params.id.trim());
-    const category = await Category.findById(id);
+    console.log('R:----DENTRO DE-- categories.js router.get(/:id');
+    const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
+    const category = await Category.findById(id_obj);
 
     if (!category) {
         res.status(500).json({
             message: 'The category with the given ID was not found.',
         });
     }
-    res.status(200).send(category);
+    res.status(200).send(JSON.stringify(category));
 });
 
 router.post('/', async (req, res) => {
+    console.log('R:----DENTRO DE-- categories.js router.post(/');
     let category = new Category({
         name: req.body.name,
         icon: req.body.icon,
@@ -35,13 +40,14 @@ router.post('/', async (req, res) => {
     if (!category)
         return res.status(400).send('the category cannot be created!');
 
-    res.send(category);
+    res.send(JSON.stringify(category));
 });
 
 router.put('/:id', async (req, res) => {
-    const id = mongoose.Types.ObjectId(req.params.id.trim());
+    console.log('R:----DENTRO DE-- categories.js router.put(/:id');
+    const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
     const category = await Category.findByIdAndUpdate(
-        id,
+        id_obj,
         {
             name: req.body.name,
             icon: req.body.icon || category.icon,
@@ -53,12 +59,13 @@ router.put('/:id', async (req, res) => {
     if (!category)
         return res.status(400).send('the category cannot be created!');
 
-    res.send(category);
+    res.send(JSON.stringify(category));
 });
 
 router.delete('/:id', (req, res) => {
-    const id = mongoose.Types.ObjectId(req.params.id.trim());
-    Category.findByIdAndRemove(id)
+    console.log('R:----DENTRO DE-- categories.js router.delete(/:id');
+    const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
+    Category.findByIdAndRemove(id_obj)
         .then((category) => {
             if (category) {
                 return res.status(200).json({

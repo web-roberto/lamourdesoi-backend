@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 
 
 router.get(`/`, async (req, res) => {
+    console.log('R:----DENTRO DE-- orders.js outer.get(/');
     const orderList = await Order.find()
         .populate('user', 'name')
         .sort({ dateOrdered: -1 });
@@ -13,12 +14,13 @@ router.get(`/`, async (req, res) => {
     if (!orderList) {
         res.status(500).json({ success: false });
     }
-    res.send(orderList);
+    res.send(JSON.stringify(orderList));
 });
 
 router.get(`/:id`, async (req, res) => {
-    const id = mongoose.Types.ObjectId(req.params.id.trim());
-    const order = await Order.findById(id)
+    console.log('R:----DENTRO DE-- orders.js outer.get(/:id');
+    const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
+    const order = await Order.findById(id_obj)
         .populate('user', 'name')
         .populate({
             path: 'orderItems',
@@ -31,10 +33,11 @@ router.get(`/:id`, async (req, res) => {
     if (!order) {
         res.status(500).json({ success: false });
     }
-    res.send(order);
+    res.send(JSON.stringify(order));
 });
 
 router.post('/', async (req, res) => {
+    console.log('R:----DENTRO DE-- orders.js outer.post(/');
     const orderItemsIds = Promise.all(
         req.body.orderItems.map(async (orderItem) => {
             let newOrderItem = new OrderItem({
@@ -80,13 +83,14 @@ router.post('/', async (req, res) => {
 
     if (!order) return res.status(400).send('the order cannot be created!');
 
-    res.send(order);
+    res.send(JSON.stringify(order));
 });
 
 router.put('/:id', async (req, res) => {
-    const id = mongoose.Types.ObjectId(req.params.id.trim());
+    console.log('R:----DENTRO DE-- orders.js outer.put(/:id');
+    const iid_obj = mongoose.Types.ObjectId(req.params.id.trim());
     const order = await Order.findByIdAndUpdate(
-        id,
+        id_obj,
         {
             status: req.body.status,
         },
@@ -95,12 +99,13 @@ router.put('/:id', async (req, res) => {
 
     if (!order) return res.status(400).send('the order cannot be update!');
 
-    res.send(order);
+    res.send(JSON.stringify(order));
 });
 
 router.delete('/:id', (req, res) => {
-    const id = mongoose.Types.ObjectId(req.params.id.trim());
-    Order.findByIdAndRemove(id)
+    console.log('R:----DENTRO DE-- orders.js outer.get(/:id');
+    const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
+    Order.findByIdAndRemove(id_obj)
         .then(async (order) => {
             if (order) {
                 await order.orderItems.map(async (orderItemId) => {
@@ -122,7 +127,7 @@ router.delete('/:id', (req, res) => {
 });
 
 router.get('/get/totalsales', async (req, res) => {
-
+    console.log('R:----DENTRO DE-- orders.js outer.get(/get/totalsales');
     const totalSales = await Order.aggregate([
         { $group: { _id: null, totalsales: { $sum: '$totalPrice' } } },
     ]);
@@ -131,21 +136,23 @@ router.get('/get/totalsales', async (req, res) => {
         return res.status(400).send('The order sales cannot be generated');
     }
 
-    res.send({ totalsales: totalSales.pop().totalsales });
+    res.send(JSON.stringify({ totalsales: totalSales.pop().totalsales }));
 });
 
 router.get(`/get/count`, async (req, res) => {
+    console.log('R:----DENTRO DE-- orders.js outer.get(/get/count');
     const orderCount = await Order.countDocuments((count) => count);
 
     if (!orderCount) {
         res.status(500).json({ success: false });
     }
-    res.send({
+    res.send(JSON.stringify({
         orderCount: orderCount,
-    });
+    }));
 });
 
 router.get(`/get/userorders/:userid`, async (req, res) => {
+    console.log('R:----DENTRO DE-- orders.js outer.get(/get/userorders/:userid');
     const userid_obj = mongoose.Types.ObjectId(req.params.userid.trim());
     const userOrderList = await Order.find({ user: userid_obj })
         .populate({
@@ -160,7 +167,7 @@ router.get(`/get/userorders/:userid`, async (req, res) => {
     if (!userOrderList) {
         res.status(500).json({ success: false });
     }
-    res.send(userOrderList);
+    res.send(JSON.stringify(userOrderList));
 });
 
 module.exports = router;

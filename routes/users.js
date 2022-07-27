@@ -6,16 +6,18 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 router.get(`/`, async (req, res) => {
+    console.log('R:----DENTRO DE-- users.js router.get(/)');
     // we don't want to show the field passwordHash
     const userList = await User.find().select('-passwordHash');
 
     if (!userList) {
         res.status(500).json({ success: false });
     }
-    res.send(userList);
+    res.send(JSON.stringify(userList));
 });
 
 router.get('/:id', async (req, res) => {
+    console.log('R:----DENTRO DE-- users.js router.get(/:id))');
     // we don't want to show the field passwordHash
     const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
     const user = await User.findById(id_obj).select('-passwordHash');
@@ -25,7 +27,7 @@ router.get('/:id', async (req, res) => {
             message: 'The user with the given ID was not found.',
         });
     }
-    res.status(200).send(user);
+    res.status(200).send(JSON.stringify(user));
 });
 
 router.post('/', async (req, res) => {
@@ -46,10 +48,11 @@ router.post('/', async (req, res) => {
 
     if (!user) return res.status(400).send('the user cannot be created!');
 
-    res.send(user);
+    res.send(JSON.stringify(user));
 });
 
 router.put('/:id', async (req, res) => {
+    console.log('R:----DENTRO DE-- users.js router.put(/:id)');
     const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
     const userExist = await User.findById(id_obj);
     let newPassword;
@@ -78,10 +81,11 @@ router.put('/:id', async (req, res) => {
 
     if (!user) return res.status(400).send('the user cannot be created!');
 
-    res.send(user);
+    res.send(JSON.stringify(user));
 });
 
 router.post('/login', async (req, res) => {
+    console.log('R:----DENTRO DE-- users.js router.post(/login)');
     const user = await User.findOne({ email: req.body.email });
     const secret = process.env.secret;
     if (!user) {
@@ -108,13 +112,14 @@ router.post('/login', async (req, res) => {
             token,
             '----'
         );
-        res.status(200).send({ user: user.email, token: token });
+        res.status(200).send(JSON.stringify({ user: user.email, token: token }));
     } else {
         res.status(400).send('password is wrong!');
     }
 });
 
 router.post('/register', async (req, res) => {
+    console.log('R:----DENTRO DE-- users.js router.put(/register))');
     let user = new User({
         name: req.body.name,
         email: req.body.email,
@@ -131,10 +136,11 @@ router.post('/register', async (req, res) => {
 
     if (!user) return res.status(400).send('the user cannot be created!');
 
-    res.send(user);
+    res.send(JSON.stringify(user));
 });
 
 router.delete('/:id', (req, res) => {
+    console.log('R:----DENTRO DE-- users.js router.delete(/:id))');
     const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
     User.findByIdAndRemove(id_obj)
         .then((user) => {
@@ -154,14 +160,15 @@ router.delete('/:id', (req, res) => {
 });
 
 router.get(`/get/count`, async (req, res) => {
+    console.log('R:----DENTRO DE-- users.js router.get(/get/count))');
     const userCount = await User.countDocuments((count) => count);
 
     if (!userCount) {
         res.status(500).json({ success: false });
     }
-    res.send({
+    res.send(JSON.stringify({
         userCount: userCount,
-    });
+    }));
 });
 
 module.exports = router;

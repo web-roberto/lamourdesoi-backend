@@ -1,6 +1,7 @@
 const expressJwt = require('express-jwt');
 
 function authJwt() {
+    console.log('R:----DENTRO DE--jwt.js authJwt)');
     const secret = process.env.secret;
     const api = process.env.API_URL;
     return expressJwt({
@@ -23,6 +24,7 @@ function authJwt() {
 }
 
 async function isRevoked(req, payload, done) {
+    console.log('R:----DENTRO DE-- jwt.js isRevoked)');
     if (!payload.isAdmin) {
         done(null, true); //jwt rejected
     }

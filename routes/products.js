@@ -33,6 +33,7 @@ const storage = multer.diskStorage({
 const uploadOptions = multer({ storage: storage });
 //list products with a category in concret
 router.get(`/`, async (req, res) => {
+    console.log('R:----DENTRO DE-- products.js router.get(/)');
     let filter = {}; // [] ?? -> uses {} o use the same get('/') por normal use
     // and for use with query. When there is no query the filter is {} and it works
     //like with no filters
@@ -47,20 +48,22 @@ router.get(`/`, async (req, res) => {
     if (!productList) {
         res.status(500).json({ success: false });
     }
-    res.send(productList);
+    res.send(JSON.stringify(productList));
 });
 
 router.get(`/:id`, async (req, res) => {
+    console.log('R:----DENTRO DE-- products.js router.get(/:id)');
     const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
     const product = await Product.findById(id_obj).populate('category');
     if (!product) {
         res.status(500).json({ success: false });
     }
-    res.send(product);
+    res.send(JSON.stringify(product));
 });
 
 //in the FORM of the client, we MUST call the field like 'image'
 router.post(`/`, uploadOptions.single('image'), async (req, res) => {
+    console.log('R:----DENTRO DE-- products.js router.post(/)');
     //Firstly we check if exists Category because a field of Product is Foreign Key
     const category = await Category.findById(req.body.category);
     if (!category) return res.status(400).send('Invalid Category');
@@ -87,11 +90,12 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
 
     product = await product.save();
     if (!product) return res.status(500).send('The product cannot be created');
-    res.send(product);
+    res.send(JSON.stringify(product));
 });
 
 //in the FORM of the client, we MUST call the field like 'image'
 router.put('/:id', uploadOptions.single('image'), async (req, res) => {
+    console.log('R:----DENTRO DE-- products.js router.put(/:id)');
     // isValidObjectID to evoid using try {} catch, to avoid an exception
     // we use it ony in PUTs
     const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
@@ -136,10 +140,11 @@ router.put('/:id', uploadOptions.single('image'), async (req, res) => {
     if (!updatedProduct)
         return res.status(500).send('the product cannot be updated!');
 
-    res.send(updatedProduct);
+    res.send(JSON.stringify(updatedProduct));
 });
 
 router.delete('/:id', (req, res) => {
+    console.log('R:----DENTRO DE-- products.js router.delete(/:id)');
     const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
     Product.findByIdAndRemove(id_obj)
         .then((product) => {
@@ -161,17 +166,19 @@ router.delete('/:id', (req, res) => {
 
 //countDocuments: counts de number o registers of a table
 router.get(`/get/count`, async (req, res) => {
+    console.log('R:----DENTRO DE-- products.js router.get(/get/count)');
     const productCount = await Product.countDocuments((count) => count);
 
     if (!productCount) {
         res.status(500).json({ success: false });
     }
-    res.send({
+    res.send(JSON.stringify({
         productCount: productCount,
-    });
+    }));
 });
 // we show the most important products at the beginning
 router.get(`/get/featured/:count`, async (req, res) => {
+    console.log('R:----DENTRO DE-- products.js router.get(/get/featured/:count)');
     const count = req.params.count ? req.params.count : 0;
     // +count converts de count from string to number
     const products = await Product.find({ isFeatured: true }).limit(+count);
@@ -179,7 +186,7 @@ router.get(`/get/featured/:count`, async (req, res) => {
     if (!products) {
         res.status(500).json({ success: false });
     }
-    res.send(products);
+    res.send(JSON.stringify(products));
 });
 
 // PUT to upload a gallery of images, but firstly we uploade de MAIN IMAGE mandatory
@@ -187,6 +194,7 @@ router.put(
     '/gallery-images/:id',
     uploadOptions.array('images', 10),
     async (req, res) => {
+        console.log('R:----DENTRO DE-- products.js router.put(/gallery-images/:id)');
         // isValidObjectID to evoid using try {} catch, to avoid an exception
         // we use it ony in PUTs
         const id_obj = mongoose.Types.ObjectId(req.params.id.trim());
@@ -214,7 +222,7 @@ router.put(
         if (!product)
             return res.status(500).send('the gallery cannot be updated!');
 
-        res.send(product);
+        res.send(JSON.stringify(product));
     }
 );
 
